@@ -79,12 +79,10 @@ public class AppLock {
         return (String) (ai != null ? pm.getApplicationLabel(ai) : "(unknown)");
     }
 
-    public static void setAvailablePackageNames(ArrayList<ResolveInfo> al) {
+    public static void setAvailablePackageNames(ArrayList<ApplicationInfo> al) {
         AVAILABLE_PACKAGE_NAMES = new HashSet<>();
-        for (ResolveInfo ri : al) {
-            ActivityInfo activity = ri.activityInfo;
-            ComponentName name = new ComponentName(activity.applicationInfo.packageName,
-                    activity.name);
+        for (ApplicationInfo ri : al) {
+            ComponentName name = new ComponentName(ri.packageName, ri.name);
 
             AVAILABLE_PACKAGE_NAMES.add(name.getPackageName());
         }

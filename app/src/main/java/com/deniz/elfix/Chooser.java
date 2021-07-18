@@ -4,6 +4,7 @@ import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -25,7 +26,7 @@ import java.util.List;
 public class Chooser extends ListActivity {
     AppAdapter adapter = null;
 
-    private ArrayList<ResolveInfo> selected;
+    private ArrayList<ApplicationInfo> selected;
     private boolean multiple;
     private Button btn;
 
@@ -37,12 +38,8 @@ public class Chooser extends ListActivity {
         multiple = getIntent().getBooleanExtra("multiple", false);
 
         PackageManager pm = getPackageManager();
-        Intent main = new Intent(Intent.ACTION_MAIN, null);
-
-        main.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> launchables = pm.queryIntentActivities(main, 0);
-        Collections.sort(launchables,
-                new ResolveInfo.DisplayNameComparator(pm));
+        List<ApplicationInfo> launchables = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        Collections.sort(launchables, new ApplicationInfo.DisplayNameComparator(pm));
 
         adapter = new AppAdapter(pm, launchables);
         setListAdapter(adapter);
@@ -63,7 +60,7 @@ public class Chooser extends ListActivity {
                 if (checkedItems != null) {
                     for (int i = 0; i < checkedItems.size(); i++) {
                         if (checkedItems.valueAt(i)) {
-                            selected.add((ResolveInfo) listView.getAdapter().getItem(
+                            selected.add((ApplicationInfo) listView.getAdapter().getItem(
                                     checkedItems.keyAt(i)));
                         }
                     }
@@ -75,18 +72,15 @@ public class Chooser extends ListActivity {
         });
     }
 
-    private String extractPackName(ResolveInfo ri) {
-        ActivityInfo activity = ri.activityInfo;
-        ComponentName name = new ComponentName(activity.applicationInfo.packageName,
-                activity.name);
-
+    private String extractPackName(ApplicationInfo ri) {
+        ComponentName name = new ComponentName(ri.packageName, ri.name);
         return name.getPackageName();
     }
 
     @Override
     protected void onListItemClick(ListView l, View v,
                                    int position, long id) {
-        ResolveInfo launchable = adapter.getItem(position);
+        ApplicationInfo launchable = adapter.getItem(position);
         if (!multiple) {
             Intent intentMessage = new Intent();
             if (launchable != null) {
@@ -106,10 +100,10 @@ public class Chooser extends ListActivity {
         btn.setEnabled(selected.size() > 1);
     }
 
-    class AppAdapter extends ArrayAdapter<ResolveInfo> {
+    class AppAdapter extends ArrayAdapter<ApplicationInfo> {
         private PackageManager pm;
 
-        AppAdapter(PackageManager pm, List<ResolveInfo> apps) {
+        AppAdapter(PackageManager pm, List<ApplicationInfo> apps) {
             super(Chooser.this, R.layout.row, apps);
             this.pm = pm;
         }
