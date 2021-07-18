@@ -1,0 +1,4 @@
+<resources>
+    <string name="dialog_msg">You will be redirected to chooser activity to choose an app to lock this app to
+        receive notifications from it. If you want to use this app for more than one app then click "No". More information on XDA page.</string>
+</resources>
