@@ -103,7 +103,15 @@
             android:id="@+id/switch_screen"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Use it when screen is on and off"
+            android:text="Also use it when screen is on"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="301dp" />
+
+        <Switch
+            android:id="@+id/wake_screen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Wake screen on notification"
             tools:layout_editor_absoluteX="16dp"
             tools:layout_editor_absoluteY="301dp" />
 

@@ -11,8 +11,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import androidx.core.app.ActivityCompat;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -21,6 +19,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private AppLock al;
     private Switch service;
     private Switch screen;
+    private Switch wake_screen;
     private SharedPreferences prefs;
 
     public static String PACKAGE_NAME = "com.deniz.elfix";
@@ -75,6 +77,12 @@ public class MainActivity extends AppCompatActivity {
                 prefs.edit().putBoolean("SCREEN_ON", isChecked).apply();
             }
         });
+        wake_screen = findViewById(R.id.wake_screen);
+        wake_screen.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                prefs.edit().putBoolean("WAKE_SCREEN", isChecked).apply();
+            }
+        });
 
         Button start_other_els = findViewById(R.id.button_start_els);
         start_other_els.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         service.setChecked(true);
         screen.setChecked(prefs.getBoolean("SCREEN_ON", false));
+        wake_screen.setChecked(prefs.getBoolean("WAKE_SCREEN", false));
     }
 
     public static boolean isAppRunning(final Context context, final String packageName) {

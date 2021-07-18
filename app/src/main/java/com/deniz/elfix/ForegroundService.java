@@ -73,15 +73,17 @@ public class ForegroundService extends Service {
             }
             SharedPreferences prefs = context.getSharedPreferences(PACKAGE_NAME, MODE_PRIVATE);
             boolean screen = prefs.getBoolean("SCREEN_ON", false);
+            boolean wake_screen = prefs.getBoolean("WAKE_SCREEN", false);
             if ((!ScreenReceiver.wasScreenOn || screen) && !isDND) {
                 String pack = intent.getStringExtra("package");
                 String title = intent.getStringExtra("title");
                 String text = intent.getStringExtra("text");
+                int color = intent.getIntExtra("color", 0);
                 PendingIntent contentIntent = intent.getParcelableExtra("contentIntent");
 
                 PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
                 PowerManager.WakeLock wl;
-                if (pm != null) {
+                if (pm != null && wake_screen) {
                     wl = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "elfix:wakelock");
                     wl.acquire(2000);
                 }
