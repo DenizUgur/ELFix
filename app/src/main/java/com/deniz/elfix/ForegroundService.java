@@ -13,9 +13,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.SystemClock;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -35,6 +36,7 @@ public class ForegroundService extends Service {
         super.onCreate();
     }
 
+    @SuppressLint("WakelockTimeout")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
@@ -42,16 +44,14 @@ public class ForegroundService extends Service {
         screenReceiver = new ScreenReceiver();
         registerReceiver(screenReceiver, filter);
 
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (pm != null) {
+            PowerManager.WakeLock service_wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "elfix:wakelock:service_persistent");
+            service_wl.acquire();
+        }
+
         createNotificationChannel();
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter(NOTIFICATION_ACTION));
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.dot)
-                .setContentTitle("Service started")
-                .setContentText("Edge Lighting Fix is initiated")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-        notificationManager.notify(2, mBuilder.build());
 
         return START_STICKY;
     }
@@ -88,7 +88,10 @@ public class ForegroundService extends Service {
                     wl.acquire(2000);
                 }
 
-                String mDrawableName = "ic_stat_" + pack.replace(".", "_");
+                String mDrawableName = null;
+                if (pack != null) {
+                    mDrawableName = "ic_stat_" + pack.replace(".", "_");
+                }
                 int resID;
                 try {
                     resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
@@ -105,7 +108,6 @@ public class ForegroundService extends Service {
                 final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
                 notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
 
-
                 new android.os.Handler().postDelayed(
                         new Runnable() {
                             public void run() {
@@ -119,18 +121,16 @@ public class ForegroundService extends Service {
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Edge Lighting Helper";
-            String description = "Helper channel with Edge Lighting support for selected app(s) in EL Fix app.";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            assert notificationManager != null;
-            notificationManager.createNotificationChannel(channel);
-        }
+        CharSequence name = "Edge Lighting Helper";
+        String description = "Helper channel with Edge Lighting support for selected app(s) in EL Fix app.";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+        channel.setDescription(description);
+        // Register the channel with the system; you can't change the importance
+        // or other notification behaviors after this
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        assert notificationManager != null;
+        notificationManager.createNotificationChannel(channel);
     }
 
     @Override
@@ -138,22 +138,14 @@ public class ForegroundService extends Service {
         //When remove app from background then start it again
         super.onTaskRemoved(rootIntent);
 
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.dot)
-                .setContentTitle("Service removed")
-                .setContentText("Edge Lighting Fix is finalized")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-        notificationManager.notify(3, mBuilder.build());
-
         PendingIntent service = PendingIntent.getService(
                 getApplicationContext(),
-                1001,
+                1,
                 new Intent(getApplicationContext(), ForegroundService.class),
                 PendingIntent.FLAG_ONE_SHOT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000, service);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1000, service);
     }
 
     @Override

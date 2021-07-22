@@ -36,6 +36,7 @@
         <service
             android:name="com.deniz.elfix.ForegroundService"
             android:enabled="true"
+            android:exported="false"
             android:stopWithTask="false" />
         <service
             android:name="com.deniz.elfix.NotificationService"
@@ -46,7 +47,7 @@
             </intent-filter>
         </service>
 
-        <receiver android:name=".AutoStart">
+        <receiver android:enabled="true" android:name=".AutoStart">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
