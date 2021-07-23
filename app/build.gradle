@@ -12,43 +12,36 @@ android {
         resValue "string", "app_name", "Edge Lighting Fix"
     }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-
-        debug {
-            debuggable true
-        }
-
-        instagram {
-            initWith debug
-            applicationIdSuffix ".com.instagram.android"
-            resValue "string", "app_name", "Instagram ELF"
-        }
-
-        whatsapp {
-            initWith debug
-            applicationIdSuffix ".com.whatsapp"
-            resValue "string", "app_name", "Whatsapp ELF"
-        }
-
-        snapchat {
-            initWith debug
-            applicationIdSuffix ".com.snapchat.android"
-            resValue "string", "app_name", "Snapchat ELF"
-        }
-    }
-
     flavorDimensions "api"
 
     productFlavors {
         normal {}
 
-        oreoonly {
-            dimension "api"
-            minSdkVersion 26
+        instagram {
+            applicationIdSuffix ".com.instagram.android"
+            resValue "string", "app_name", "Instagram ELF"
+            manifestPlaceholders = [
+                    appIcon: "@drawable/ic_stat_com_instagram_android_full",
+                    appIconRound: "@drawable/ic_stat_com_instagram_android_full"
+            ]
+        }
+
+        whatsapp {
+            applicationIdSuffix ".com.whatsapp"
+            resValue "string", "app_name", "Whatsapp ELF"
+            manifestPlaceholders = [
+                    appIcon: "@drawable/ic_stat_com_whatsapp_full",
+                    appIconRound: "@drawable/ic_stat_com_whatsapp_full"
+            ]
+        }
+
+        snapchat {
+            applicationIdSuffix ".com.snapchat.android"
+            resValue "string", "app_name", "Snapchat ELF"
+            manifestPlaceholders = [
+                    appIcon: "@drawable/ic_stat_com_snapchat_android_full",
+                    appIconRound: "@drawable/ic_stat_com_snapchat_android_full"
+            ]
         }
     }
 }
